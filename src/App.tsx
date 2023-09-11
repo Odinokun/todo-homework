@@ -1,7 +1,7 @@
-import React from 'react';
-import './App.css';
-import { Todolist } from './components/Todolist';
+import React, { useState } from 'react';
 import { v1 } from 'uuid';
+import { Todolist } from './components/Todolist';
+import './App.css';
 
 export type TaskType = {
   id: string;
@@ -19,7 +19,7 @@ function App() {
     { id: v1(), title: 'Rest API', isDone: false },
     { id: v1(), title: 'GraphQL', isDone: false },
   ]);
-  const [filter, setFilter] = React.useState<FilterValuesType>();
+  const [filter, setFilter] = useState<FilterValuesType>('all');
 
   const removeTask = (id: string) => {
     setTasks(tasks.filter(t => t.id !== id));
@@ -47,6 +47,10 @@ function App() {
     setTasks([newTask, ...tasks]);
   };
 
+  const changeTaskStatus = (id: string, isDone: boolean) => {
+    setTasks(tasks.map(t => (t.id === id ? { ...t, isDone } : t)));
+  };
+
   return (
     <div className='App'>
       <Todolist
@@ -55,6 +59,8 @@ function App() {
         removeTask={removeTask}
         changeFilter={changeFilter}
         addTask={addTask}
+        changeTaskStatus={changeTaskStatus}
+        filter={filter}
       />
     </div>
   );
