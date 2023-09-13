@@ -4,16 +4,19 @@ import { FilterValuesType, TaskType } from '../App';
 import './Todolist.css';
 
 interface IProps {
+  todolistId: string;
   title: string;
   tasks: TaskType[];
-  removeTask: (id: string) => void;
-  changeFilter: (value: FilterValuesType) => void;
-  addTask: (title: string) => void;
-  changeTaskStatus: (id: string, isDone: boolean) => void;
+  removeTask: (id: string, todolistId: string) => void;
+  changeFilter: (value: FilterValuesType, todolistId: string) => void;
+  addTask: (title: string, todolistId: string) => void;
+  changeTaskStatus: (id: string, isDone: boolean, todolistId: string) => void;
   filter: FilterValuesType;
+  removeTodolist: (todolistId: string) => void;
 }
 
 export const Todolist: FC<IProps> = ({
+  todolistId,
   title,
   tasks,
   removeTask,
@@ -21,6 +24,7 @@ export const Todolist: FC<IProps> = ({
   addTask,
   changeTaskStatus,
   filter,
+  removeTodolist,
 }) => {
   const [newTaskTitle, setNewTaskTitle] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -38,20 +42,26 @@ export const Todolist: FC<IProps> = ({
 
   const addTaskHandler = () => {
     if (newTaskTitle.trim() !== '') {
-      addTask(newTaskTitle.trim());
+      addTask(newTaskTitle.trim(), todolistId);
       setNewTaskTitle('');
     } else {
       setError('This field is requered!');
     }
   };
 
-  const changeAllFilter = () => changeFilter('all');
-  const changeActiveFilter = () => changeFilter('active');
-  const changeCompletedFilter = () => changeFilter('completed');
+  const changeAllFilter = () => changeFilter('all', todolistId);
+  const changeActiveFilter = () => changeFilter('active', todolistId);
+  const changeCompletedFilter = () => changeFilter('completed', todolistId);
+
+  const removeTodolistHandler = () => removeTodolist(todolistId);
 
   return (
     <div>
-      <h3>{title}</h3>
+      <div>
+        <span>{title}</span>
+        <button onClick={removeTodolistHandler}>del</button>
+      </div>
+      <br />
       <div>
         <input
           value={newTaskTitle}
@@ -62,9 +72,7 @@ export const Todolist: FC<IProps> = ({
         <button onClick={addTaskHandler}>+</button>
         {error && <div className='error-message'>{error}</div>}
       </div>
-
       <br />
-
       <div>
         <button
           className={filter === 'all' ? 'active-filter' : ''}
@@ -85,12 +93,11 @@ export const Todolist: FC<IProps> = ({
           Completed
         </button>
       </div>
-
       <ul>
         {tasks.map(t => {
-          const removeTaskHandler = () => removeTask(t.id);
+          const removeTaskHandler = () => removeTask(t.id, todolistId);
           const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>) =>
-            changeTaskStatus(t.id, e.currentTarget.checked);
+            changeTaskStatus(t.id, e.currentTarget.checked, todolistId);
           return (
             <li key={t.id} className={t.isDone ? 'is-done' : ''}>
               <input
