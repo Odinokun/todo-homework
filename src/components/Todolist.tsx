@@ -1,6 +1,7 @@
-import React, { FC, ChangeEvent, KeyboardEvent, useState } from 'react';
+import { FC, ChangeEvent } from 'react';
 import { FilterValuesType, TaskType } from '../App';
-// import '../App.css';
+import { AddItemForm } from './AddItemForm';
+import { EditableSpan } from './EditableSpan';
 import './Todolist.css';
 
 interface IProps {
@@ -13,6 +14,8 @@ interface IProps {
   changeTaskStatus: (id: string, isDone: boolean, todolistId: string) => void;
   filter: FilterValuesType;
   removeTodolist: (todolistId: string) => void;
+  changeTaskTitle: (id: string, title: string, todolistId: string) => void;
+  changeTodolistTitle: (id: string, title: string) => void;
 }
 
 export const Todolist: FC<IProps> = ({
@@ -25,28 +28,11 @@ export const Todolist: FC<IProps> = ({
   changeTaskStatus,
   filter,
   removeTodolist,
+  changeTaskTitle,
+  changeTodolistTitle,
 }) => {
-  const [newTaskTitle, setNewTaskTitle] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-
-  const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTaskTitle(e.currentTarget.value);
-  };
-
-  const onKeyPressHandler = (e: KeyboardEvent<HTMLInputElement>) => {
-    setError(null);
-    if (e.key === 'Enter') {
-      addTaskHandler();
-    }
-  };
-
-  const addTaskHandler = () => {
-    if (newTaskTitle.trim() !== '') {
-      addTask(newTaskTitle.trim(), todolistId);
-      setNewTaskTitle('');
-    } else {
-      setError('This field is requered!');
-    }
+  const addTaskHandler = (newTaskTitle: string) => {
+    addTask(newTaskTitle.trim(), todolistId);
   };
 
   const changeAllFilter = () => changeFilter('all', todolistId);
@@ -55,24 +41,22 @@ export const Todolist: FC<IProps> = ({
 
   const removeTodolistHandler = () => removeTodolist(todolistId);
 
+  const changeTodolistTitleHandler = (newTitle: string) =>
+    changeTodolistTitle(todolistId, newTitle);
+
   return (
     <div>
       <div>
-        <span>{title}</span>
+        <EditableSpan title={title} onChange={changeTodolistTitleHandler} />
         <button onClick={removeTodolistHandler}>del</button>
       </div>
+
       <br />
-      <div>
-        <input
-          value={newTaskTitle}
-          onChange={inputChangeHandler}
-          onKeyDown={onKeyPressHandler}
-          className={error ? 'error' : ''}
-        />
-        <button onClick={addTaskHandler}>+</button>
-        {error && <div className='error-message'>{error}</div>}
-      </div>
+
+      <AddItemForm addItem={addTaskHandler} />
+
       <br />
+
       <div>
         <button
           className={filter === 'all' ? 'active-filter' : ''}
@@ -93,11 +77,14 @@ export const Todolist: FC<IProps> = ({
           Completed
         </button>
       </div>
+
       <ul>
         {tasks.map(t => {
           const removeTaskHandler = () => removeTask(t.id, todolistId);
           const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>) =>
             changeTaskStatus(t.id, e.currentTarget.checked, todolistId);
+          const changeTaskTitleHandler = (newTitle: string) =>
+            changeTaskTitle(t.id, newTitle, todolistId);
           return (
             <li key={t.id} className={t.isDone ? 'is-done' : ''}>
               <input
@@ -105,8 +92,8 @@ export const Todolist: FC<IProps> = ({
                 checked={t.isDone}
                 onChange={changeTaskStatusHandler}
               />
-              <span>{t.title}</span>
               <button onClick={removeTaskHandler}>del</button>
+              <EditableSpan title={t.title} onChange={changeTaskTitleHandler} />
             </li>
           );
         })}
