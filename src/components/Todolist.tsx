@@ -1,8 +1,19 @@
 import { FC, ChangeEvent } from 'react';
-import { FilterValuesType, TaskType } from '../App';
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  List,
+  ListItem,
+  Typography,
+} from '@mui/material';
+
+import { Delete } from '@mui/icons-material';
+
 import { AddItemForm } from './AddItemForm';
 import { EditableSpan } from './EditableSpan';
-import './Todolist.css';
+
+import { FilterValuesType, TaskType } from '../App';
 
 interface IProps {
   todolistId: string;
@@ -48,7 +59,9 @@ export const Todolist: FC<IProps> = ({
     <div>
       <div>
         <EditableSpan title={title} onChange={changeTodolistTitleHandler} />
-        <button onClick={removeTodolistHandler}>del</button>
+        <IconButton onClick={removeTodolistHandler} size='medium' color='error'>
+          <Delete />
+        </IconButton>
       </div>
 
       <br />
@@ -58,27 +71,28 @@ export const Todolist: FC<IProps> = ({
       <br />
 
       <div>
-        <button
-          className={filter === 'all' ? 'active-filter' : ''}
+        <Button
           onClick={changeAllFilter}
+          variant={filter === 'all' ? 'contained' : 'outlined'}
+          color='primary'
         >
           All
-        </button>
-        <button
-          className={filter === 'active' ? 'active-filter' : ''}
+        </Button>
+        <Button
           onClick={changeActiveFilter}
+          variant={filter === 'active' ? 'contained' : 'outlined'}
         >
           Active
-        </button>
-        <button
-          className={filter === 'completed' ? 'active-filter' : ''}
+        </Button>
+        <Button
+          variant={filter === 'completed' ? 'contained' : 'outlined'}
           onClick={changeCompletedFilter}
         >
           Completed
-        </button>
+        </Button>
       </div>
 
-      <ul>
+      <List>
         {tasks.map(t => {
           const removeTaskHandler = () => removeTask(t.id, todolistId);
           const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>) =>
@@ -86,18 +100,24 @@ export const Todolist: FC<IProps> = ({
           const changeTaskTitleHandler = (newTitle: string) =>
             changeTaskTitle(t.id, newTitle, todolistId);
           return (
-            <li key={t.id} className={t.isDone ? 'is-done' : ''}>
-              <input
-                type='checkbox'
+            <ListItem key={t.id} className={t.isDone ? 'is-done' : ''}>
+              <Checkbox
                 checked={t.isDone}
                 onChange={changeTaskStatusHandler}
+                color='success'
               />
-              <button onClick={removeTaskHandler}>del</button>
+              <IconButton
+                onClick={removeTaskHandler}
+                size='medium'
+                color='error'
+              >
+                <Delete />
+              </IconButton>
               <EditableSpan title={t.title} onChange={changeTaskTitleHandler} />
-            </li>
+            </ListItem>
           );
         })}
-      </ul>
+      </List>
     </div>
   );
 };

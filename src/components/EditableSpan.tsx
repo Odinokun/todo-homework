@@ -1,4 +1,5 @@
-import { ChangeEvent, FC, useState } from 'react';
+import { TextField } from '@mui/material';
+import { KeyboardEvent, ChangeEvent, FC, useState } from 'react';
 
 interface IProps {
   title: string;
@@ -21,14 +22,21 @@ export const EditableSpan: FC<IProps> = ({ title, onChange }) => {
 
   const deactivateEditMode = () => setEditMode(false);
 
+  const onKeyPressHandler = (e: KeyboardEvent<HTMLInputElement>) =>
+    e.key === 'Enter' && setEditMode(false);
+
   return (
     <>
       {editMode ? (
-        <input
+        <TextField
           autoFocus
           value={newTitle}
           onBlur={deactivateEditMode}
           onChange={inputChangeHandler}
+          onKeyDown={onKeyPressHandler}
+          variant='outlined'
+          size='small'
+          color='primary'
         />
       ) : (
         <span onDoubleClick={activateEditMode}>{title}</span>
